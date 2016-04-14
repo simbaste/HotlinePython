@@ -1,0 +1,128 @@
+#!/usr/bin/python3.4
+
+import sys, math
+from timeit import default_timer as my_time
+
+liste = []
+
+def print_error():
+    sys.stderr.write("USAGE\n\t./203hotline [n k | d]\n")
+    sys.stderr.write("DESCRIPTION\n\tn\tn value for the computation of n k\n")
+    sys.stderr.write("\tk\tk value for the computation of n k\n")
+    sys.stderr.write("\td\taverage duration of calls (in seconds)\n")
+    sys.exit(84)
+
+def check_args():
+    nb_args = len(sys.argv)
+    if (nb_args == 2):
+        if (sys.argv[1].isdigit()):
+            liste.append(float(sys.argv[1]))
+            return 1
+        else:
+            print_error()
+    elif (nb_args == 3):
+        if (sys.argv[1].isdigit() and sys.argv[2].isdigit()):
+            liste.append(int(sys.argv[1]))
+            liste.append(int(sys.argv[2]))
+            return 2
+        else:
+            print_error()
+    else :
+        print_error()
+
+def combination():
+    if (liste[0] < liste[1]):
+        sys.stderr.write("Bad arguments\n")
+        sys.exit(84)
+    fac1 = math.factorial(liste[0])
+    fac2 = math.factorial(liste[1])
+    fac3 = math.factorial(liste[0] - liste[1])
+    res = fac1 // (fac2 * fac3)
+    return (res)
+
+def combinaison(nb1, nb2):
+    if (nb1 < nb2):
+        print("Bad arguments")
+        sys.exit(84)
+    fac1 = math.factorial(nb1)
+    fac2 = math.factorial(nb2)
+    fac3 = math.factorial(nb1 - nb2)
+    res = fac1 / (fac2 * fac3)
+    return (res)
+
+def my_bin(nb):
+    try:
+        comb = combinaison(3500, nb);
+        proba = liste[0] / 28800;
+        resultat = comb * math.pow(proba, nb) * math.pow((1 - proba),  (3500 - nb))
+    except (ArithmeticError, Exception):
+        print("Somnthing bad error", file=sys.stderr)
+        sys.exit(84)
+    return resultat
+
+def get_pourc(my_list):
+    i = 26
+    result = 0
+    while (i < 50):
+        result = result + my_list[i]
+        i = i + 1
+    return result
+
+def binomial():
+    print('Binomial distribution:')
+    bino = []
+    timer = my_time()
+    n = 1
+    for nb in range(51):
+        bino.append(my_bin(nb))
+    for nb in range(51):
+        if ((n % 6) == 0):
+            print('%d->%.3f' % (nb, (bino[nb])))
+        elif (n == 51):
+            print('%d->%.3f' % (nb, (bino[nb])), end='')
+        else:
+            print('%d->%.3f ' % (nb, (bino[nb])), end='')
+        n = n + 1
+    pourc = get_pourc(bino) * 100
+    print("\noverload: %.1f%%" % pourc)
+    timer = my_time() - timer
+    print('computation time: %.2f ms' % (timer*1000), end='')
+
+def my_pois(nb):
+    proba = liste[0] / 28800.;
+    lamda = 3500. * proba
+    exp = math.exp(-lamda)
+    resultat = (exp * math.pow(lamda, nb)) / math.factorial(nb)
+    return resultat
+
+def poisson():
+    print('\n\nPoisson distribution:')
+    pois = []
+    timer = my_time()
+    n = 1
+    for nb in range(51):
+        pois.append(my_pois(nb))
+    for nb in range(51):
+        if ((n % 6) == 0):
+            print('%d->%.3f'  % (nb, (pois[nb])))
+        elif (n == 51):
+            print('%d->%.3f'  % (nb, (pois[nb])), end='')
+        else:
+            print('%d->%.3f '  % (nb, (pois[nb])), end='')
+        n = n + 1
+    pourc = get_pourc(pois) * 100
+    print("\noverload:%.1f%%" % pourc)
+    timer = my_time() - timer
+    print('computation time: %.2f ms' % (timer*1000))
+
+def hotline():
+    binomial()
+    poisson()
+
+opt = check_args()
+if (opt == 1):
+    hotline()
+elif (opt == 2):
+    res = combination()
+    print(str(liste[1]) + '-combination of a ' + str(liste[0]) + ' set:')
+    print(res)
